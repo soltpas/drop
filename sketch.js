@@ -4,6 +4,7 @@ let s;
 let st;
 let gt;
 let bt;
+let sp;
 
 let bi;
 let bx;
@@ -15,11 +16,18 @@ let ay;
 let ac;
 let as;
 let aa;
+let ad;
+
+let x;
+let y;
+let xx;
+let yy;
 
 function preload() {
     // 画像を読み込む (02)
     bi = loadImage("image/basket.png")
     ai = loadImage("image/apple.png")
+    ad = loadSound("audio/倒れる.mp3")
 }
 
 function setup() {
@@ -30,13 +38,13 @@ function setup() {
     mode = 0;
     bx = random(width)
     by = random(height)
+    sp = 5;
     ax = [200];
     ay = [0];
     ac = [false];
     bt = 0;
     s = 0;
     as = 0;
-    aa = 100;
 }
 
 function draw() {
@@ -51,30 +59,50 @@ function draw() {
         if (mouseIsPressed){
             mode = 1
             s = 0;
-            aa = 100;
+            aa = floor(random(10,100));
         }
     }
 
     if (mode == 1) {
         // かごを動かす (04)
         if (keyIsDown(LEFT_ARROW)){
-            bx -= 10;
+            bx -= sp;
+            sp += 0.5;
         }
 
         if (keyIsDown(RIGHT_ARROW)){
-            bx += 10;
+            bx += sp;
+            sp += 0.5;
         }
         
         if (keyIsDown(DOWN_ARROW)){
-            by += 10;
+            by += sp;
+            sp += 0.5;
         }
 
         if (keyIsDown(UP_ARROW)){
-            by -= 10;
+            by -= sp;
+            sp += 0.5;
+        }
+
+        if (bx < -60){
+            bx = width;
+        }
+
+        if (bx > width){
+            bx = 0;
+        }
+        
+        if (by < -60){
+            by = height;
+        }
+
+        if (by > height){
+            by = 0;
         }
 
         // 一定時間おきにりんごを増やす (06)
-        if (millis() - bt > 1000){
+        if (millis() - bt > 1500){
             bt = millis() - int(random(100,1000,100));
             ax.push(random(0,width));
             ay.push(0);
@@ -92,16 +120,18 @@ function draw() {
                 s++;
                 st += 1000;
                 ac[i] = true;
-                ay[i] = -100000;
+                ay[i] = -1000000;
             }
         }
         
         for (let i = 0;i < ay.length;i++){
             if (ay[i] > height){
                 aa -= 1;
-                ay[i] = -100000;
+                ad.play();
+                ay[i] = 0;
             }
         }
+
         // りんごを表示する (05)
         for (let i = 0;i < ax.length;i++){
             if (ac[i] == false){
@@ -125,4 +155,9 @@ function draw() {
             mode = 0        }       
     }
 
+}
+
+// キーを放したときに速度をリセットする
+function keyReleased(){
+    sp = 5;
 }
